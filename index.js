@@ -5,6 +5,7 @@ const ejs = require('ejs');
 const Haikunator = require('haikunator');
 const { SourceControl, Jira } = require('jira-changelog');
 const RegExpFromString = require('regexp-from-string');
+const AWS = require('aws-sdk')
 
 const config = {
   jira: {
@@ -25,6 +26,12 @@ const config = {
       to: core.getInput('source_control_range_to')
     }
   },
+  email: {
+    to: core.getInput('email_to'),
+    accessKey: core.getInput('aws_access_key'),
+    accessSecret: core.getInput('aws_access_secret'),
+    appName: core.getInput('app_name')
+  }
 };
 
 
@@ -163,9 +170,46 @@ async function main() {
 
     core.setOutput('changelog_message', changelogMessage);
 
-  } catch (error) {
-    core.setFailed(error.message);
-  }
+
+  const params = {
+    Destination: { /* required */
+      ToAddresses: config.email.to.split(',')
+    },
+    Message: { /* required */
+      Body: { /* required */
+        Html: {
+          Charset: "UTF-8",
+          Data: changelogMessage
+        },
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: config.email.appName + ' Release Notes',
+      }
+    },
+    Source: 'info@joulebug.com'
+  };
+
+// Create the promise and SES service object
+  const sendPromise = new AWS.SES({
+    apiVersion: '2010-12-01',
+    region: 'us-east-1',
+    accessKeyId: config.email.accessKey,
+    secretAccessKey: config.email.accessSecret
+  }).sendEmail(params).promise();
+
+// Handle promise's fulfilled/rejected states
+  sendPromise.then(
+      function (data) {
+        console.log(data.MessageId);
+      }).catch(
+      function (err) {
+        console.error(err, err.stack);
+      });
+} catch (e) {
+  const message = e && e.message || 'Something went wrong';
+  core.setFailed(message);
+}
 }
 
 main();
