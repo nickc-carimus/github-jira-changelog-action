@@ -149,12 +149,12 @@ async function main() {
     console.log(`Release: ${release}`);
 
     console.log('Generating Jira changelog from commit logs');
-    const changelog = await jira.generate(commitLogs, release);
+    const changelog = await jira.generate(commitLogs, null);
     console.log('Changelog entry:');
     console.log(changelog);
 
     console.log('Generating changelog message');
-    const data = await transformCommitLogs(config, changelog);
+    const data = transformCommitLogs(config, changelog);
 
     data.jira = {
       baseUrl: config.jira.baseUrl,
