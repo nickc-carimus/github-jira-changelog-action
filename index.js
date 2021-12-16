@@ -52,13 +52,6 @@ Jira Tickets
 <% }); -%>
 <% if (!tickets.all.length) {%> ~ None ~ <% } %>
 
-Other Commits
----------------------
-<% commits.noTickets.forEach((commit) => { %>
-  * <%= commit.slackUser ? '@'+commit.slackUser.name : commit.authorName %> - [<%= commit.revision.substr(0, 7) %>] - <%= commit.summary -%>
-<% }); -%>
-<% if (!commits.noTickets.length) {%> ~ None ~ <% } %>
-
 <% if (includePendingApprovalSection) { %>
 Pending Approval
 ---------------------
