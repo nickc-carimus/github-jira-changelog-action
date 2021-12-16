@@ -173,7 +173,7 @@ async function main() {
     core.setOutput('changelog_message', changelogMessage);
 
     const converter = new showdown.Converter();
-    const html = converter.makeHtml(this.markdown);
+    const html = converter.makeHtml(decodedData);
 
 
   const params = {
