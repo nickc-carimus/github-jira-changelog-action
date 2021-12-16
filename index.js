@@ -50,25 +50,6 @@ Jira Tickets
   * [<%= ticket.fields.issuetype.name %>] - [<%= ticket.key %>](<%= jira.baseUrl + '/browse/' + ticket.key %>) <%= ticket.fields.summary -%>
 <% }); -%>
 <% if (!tickets.all.length) {%> ~ None ~ <% } %>
-
-Other Commits
----------------------
-<% commits.noTickets.forEach((commit) => { %>
-  * <%= commit.slackUser ? '@'+commit.slackUser.name : commit.authorName %> - [<%= commit.revision.substr(0, 7) %>] - <%= commit.summary -%>
-<% }); -%>
-<% if (!commits.noTickets.length) {%> ~ None ~ <% } %>
-
-<% if (includePendingApprovalSection) { %>
-Pending Approval
----------------------
-<% tickets.pendingByOwner.forEach((owner) => { %>
-<%= (owner.slackUser) ? '@'+owner.slackUser.name : owner.email %>
-<% owner.tickets.forEach((ticket) => { -%>
-  * <%= jira.baseUrl + '/browse/' + ticket.key %>
-<% }); -%>
-<% }); -%>
-<% if (!tickets.pendingByOwner.length) {%> ~ None. Yay! ~ <% } %>
-<% } %>
 `;
 
 function generateReleaseVersionName() {
@@ -162,11 +143,12 @@ async function main() {
     };
     data.includePendingApprovalSection = core.getInput('include_pending_approval_section') === 'true';
 
-    const entitles = new Entities.AllHtmlEntities();
+    const entities = new Entities.AllHtmlEntities();
     const changelogMessage = ejs.render(template, data);
+    const decodedData = entities.decode(changelogMessage)
 
     console.log('Changelog message entry:');
-    console.log(entitles.decode(changelogMessage));
+    console.log(decodedData);
 
     core.setOutput('changelog_message', changelogMessage);
 
@@ -179,7 +161,7 @@ async function main() {
       Body: { /* required */
         Html: {
           Charset: "UTF-8",
-          Data: changelogMessage
+          Data: decodedData
         },
       },
       Subject: {
