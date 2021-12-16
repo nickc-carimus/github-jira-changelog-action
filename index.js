@@ -50,6 +50,25 @@ Jira Tickets
   * [<%= ticket.fields.issuetype.name %>] - [<%= ticket.key %>](<%= jira.baseUrl + '/browse/' + ticket.key %>) <%= ticket.fields.summary -%>
 <% }); -%>
 <% if (!tickets.all.length) {%> ~ None ~ <% } %>
+
+Other Commits
+---------------------
+<% commits.noTickets.forEach((commit) => { %>
+  * <%= commit.slackUser ? '@'+commit.slackUser.name : commit.authorName %> - [<%= commit.revision.substr(0, 7) %>] - <%= commit.summary -%>
+<% }); -%>
+<% if (!commits.noTickets.length) {%> ~ None ~ <% } %>
+
+<% if (includePendingApprovalSection) { %>
+Pending Approval
+---------------------
+<% tickets.pendingByOwner.forEach((owner) => { %>
+<%= (owner.slackUser) ? '@'+owner.slackUser.name : owner.email %>
+<% owner.tickets.forEach((ticket) => { -%>
+  * <%= jira.baseUrl + '/browse/' + ticket.key %>
+<% }); -%>
+<% }); -%>
+<% if (!tickets.pendingByOwner.length) {%> ~ None. Yay! ~ <% } %>
+<% } %>
 `;
 
 function generateReleaseVersionName() {
