@@ -6,6 +6,7 @@ const Haikunator = require('haikunator');
 const { SourceControl, Jira } = require('jira-changelog');
 const RegExpFromString = require('regexp-from-string');
 const AWS = require('aws-sdk')
+const showdown = require('showdown')
 
 const config = {
   jira: {
@@ -171,6 +172,9 @@ async function main() {
 
     core.setOutput('changelog_message', changelogMessage);
 
+    const converter = new showdown.Converter();
+    const html = converter.makeHtml(this.markdown);
+
 
   const params = {
     Destination: { /* required */
@@ -180,7 +184,7 @@ async function main() {
       Body: { /* required */
         Html: {
           Charset: "UTF-8",
-          Data: decodedData
+          Data: html
         },
       },
       Subject: {

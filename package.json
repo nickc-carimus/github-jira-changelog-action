@@ -25,7 +25,8 @@
     "html-entities": "^1.2.1",
     "jira-changelog": "^1.6.3",
     "lodash": "^4.17.15",
-    "regexp-from-string": "^0.1.0"
+    "regexp-from-string": "^0.1.0",
+    "showdown": "^1.9.1"
   },
   "devDependencies": {
     "aws-sdk": "^2.1046.0"
